@@ -75,7 +75,7 @@ const LoginScreen = ({ navigation }) => {
   // Animated background color based on input focus
   const animatedBackgroundColor = inputFocusAnimatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: ["rgba(0, 0, 0, 0.2)", "rgba(241, 115, 0, 0.5)"], // Background color values
+    outputRange: ["rgba(255, 255, 255, 1)", "rgba(255, 255, 255, 0.8)"], // Background color values
   });
 
   // Focus and Blur handlers for inputs using Animated API

@@ -9,29 +9,32 @@ import {
   ScrollView,
   StatusBar,
   Keyboard,
+  Dimensions,
 } from "react-native";
-
 import LoginScreen from "./LoginScreen";
-
 const HomeScreen = ({ navigation }) => {
   return (
-    <ImageBackground
-      source={require("../assets/bg.png")}
-      resizeMode="stretch"
-      style={styles.backgroundImage}
-    >
-      <Pressable
-        style={styles.fullScreenPressable}
-        onPress={() => {
-          Keyboard.dismiss();
-        }}
+    <View style={styles.container}>
+      <ImageBackground
+        source={require("../assets/bg2.png")}
+        resizeMode="stretch"
+        style={styles.backgroundImage}
+      />
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="always"
       >
-        <ScrollView contentContainerStyle={styles.container}>
+        <Pressable
+          style={styles.fullScreenPressable}
+          onPress={() => {
+            Keyboard.dismiss();
+          }}
+        >
           <LoginScreen navigation={navigation}></LoginScreen>
-        </ScrollView>
-      </Pressable>
-      <StatusBar style="auto" />
-    </ImageBackground>
+        </Pressable>
+        <StatusBar style="auto" />
+      </ScrollView>
+    </View>
   );
 };
 
@@ -39,10 +42,16 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
-    width: "100%",
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
     height: "100%",
     justifyContent: "flex-end",
     alignItems: "center",
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    left: 0,
+    top: 0,
   },
   fullScreenPressable: {
     flex: 1,
@@ -54,8 +63,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    width: "100%",
-    height: "100%",
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
   },
 });
 

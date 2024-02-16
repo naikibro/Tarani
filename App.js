@@ -16,8 +16,6 @@ import {
 } from "react-native";
 
 const Stack = createStackNavigator();
-const screenHeight = Dimensions.get("window").height;
-const screenWidth = Dimensions.get("window").width;
 
 // Main App component
 export default function App() {
@@ -26,20 +24,8 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{
-          headerStyle: {
-            backgroundColor: "#f4511e",
-            width: "100%",
-          },
           presentation: "modal",
-          orientation: "all",
-
           headerShown: false,
-          headerTransparent: true,
-          headerBlurEffect: "extralight",
-          headerTintColor: "#000",
-          headerTitleStyle: {
-            fontWeight: "bold",
-          },
         }}
       >
         <Stack.Screen
