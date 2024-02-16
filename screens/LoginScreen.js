@@ -7,6 +7,7 @@ import {
   Alert,
   StatusBar,
   Pressable,
+  Animated,
   Button,
   SafeAreaView,
 } from "react-native";
@@ -30,6 +31,9 @@ const LoginScreen = ({ navigation }) => {
   // Form validation state
   const [isFormValid, setIsFormValid] = useState(false);
 
+  // Input focus state
+  const [isInputFocused, setIsInputFocused] = useState(false);
+
   // Effect hook for form validation
   useEffect(() => {
     setIsFormValid(mail.trim() !== "" && password.trim() !== "");
@@ -46,6 +50,8 @@ const LoginScreen = ({ navigation }) => {
   // Event handlers for input fields
   const handleMailInput = (value) => setMail(value);
   const handlePasswordInput = (value) => setPassword(value);
+
+  const inputFocusAnimatedValue = new Animated.Value(0);
 
   // Login user function
   const loginUser = async () => {
@@ -66,54 +72,75 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
-  // Create user function
-  const createUser = async () => {
-    if (!isFormValid) {
-      Alert.alert("Error", "Please fill in all fields.");
-      return;
-    }
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        mail,
-        password
-      );
-      setUser(userCredential.user);
-      console.log("User created", userCredential);
-    } catch (error) {
-      Alert.alert("Signup Error", error.message);
-    }
+  // Animated background color based on input focus
+  const animatedBackgroundColor = inputFocusAnimatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["rgba(0, 0, 0, 0.2)", "rgba(241, 115, 0, 0.5)"], // Background color values
+  });
+
+  // Focus and Blur handlers for inputs using Animated API
+  const handleFocus = () => {
+    Animated.timing(inputFocusAnimatedValue, {
+      toValue: 1,
+      duration: 600,
+      useNativeDriver: false, // backgroundColor does not support native animation
+    }).start();
   };
 
+  const handleBlur = () => {
+    Animated.timing(inputFocusAnimatedValue, {
+      toValue: 0,
+      duration: 900,
+      useNativeDriver: false, // backgroundColor does not support native animation
+    }).start();
+  };
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.container}>
-        {user ? (
-          <View>
-            <Text>Welcome {user.displayName || "User"}!</Text>
-            <Pressable
-              onPress={() => signOut(auth).then(() => setUser(null))}
-              style={({ pressed }) => [
-                {
-                  backgroundColor: pressed ? "blue" : "navy",
-                },
-                styles.button,
-              ]}
-            >
-              <Text style={styles.buttonText}>Log out</Text>
-            </Pressable>
-          </View>
-        ) : (
-          <View style={styles.loginForm}>
+    <View style={styles.container}>
+      {user ? (
+        <View>
+          <Text>Welcome {user.displayName || "User"}!</Text>
+          <Pressable
+            onPress={() => signOut(auth).then(() => setUser(null))}
+            style={({ pressed }) => [
+              {
+                backgroundColor: pressed ? "blue" : "navy",
+              },
+              styles.button,
+            ]}
+          >
+            <Text style={styles.buttonText}>Log out</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <>
+          <Text
+            style={{
+              fontWeight: "bold",
+              fontSize: 40,
+            }}
+          >
+            Tarani
+          </Text>
+
+          <Animated.View
+            style={[
+              styles.loginForm,
+              { backgroundColor: animatedBackgroundColor }, // Apply animated background color here
+            ]}
+          >
             <TextInput
               value={mail}
               onChangeText={handleMailInput}
+              onFocus={handleFocus}
+              onEndEditing={handleBlur}
               placeholder="Email"
               style={styles.input}
             />
             <TextInput
               value={password}
               onChangeText={handlePasswordInput}
+              onFocus={handleFocus}
+              onEndEditing={handleBlur}
               placeholder="Password"
               secureTextEntry
               style={styles.input}
@@ -138,19 +165,11 @@ const LoginScreen = ({ navigation }) => {
                 No account yet ? Create an account here
               </Text>
             </Pressable>
-          </View>
-        )}
-        <Button title="debug" onPress={() => console.log("user => ", user)} />
-
-        <Pressable
-          onPress={() => navigation.navigate("Home")}
-          style={styles.button}
-        >
-          <Text style={styles.buttonText}>home</Text>
-        </Pressable>
-        <StatusBar style="auto" />
-      </View>
-    </SafeAreaView>
+          </Animated.View>
+        </>
+      )}
+      <Button title="debug" onPress={() => console.log("user => ", user)} />
+    </View>
   );
 };
 
@@ -158,21 +177,34 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
     alignItems: "center",
-    justifyContent: "flex-start",
-    width: "100%",
+    justifyContent: "center",
+
+    // iOS shadow properties
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 3,
+    // Android shadow property
+    elevation: 5,
   },
   loginForm: {
     width: 250,
     marginVertical: 40,
     padding: 30,
     borderRadius: 15,
-    backgroundColor: "gray",
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
     color: "white",
   },
+  loginFormFocused: {
+    backgroundColor: "rgba(150, 0, 0, 1)",
+  },
   input: {
-    color: "white",
+    color: "black",
+    borderBottomWidth: 1,
+    borderBottomColor: "black",
+    padding: 2,
+    marginVertical: 1,
   },
   button: {
     alignItems: "center",
@@ -188,7 +220,7 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   linkText: {
-    color: "#46e4f2",
+    color: "#000",
   },
 });
 

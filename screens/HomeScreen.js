@@ -1,56 +1,61 @@
 import React from "react";
-import { View, Text, Button, Pressable, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  Pressable,
+  StyleSheet,
+  ImageBackground,
+  ScrollView,
+  StatusBar,
+  Keyboard,
+} from "react-native";
+
+import LoginScreen from "./LoginScreen";
 
 const HomeScreen = ({ navigation }) => {
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "flex-start",
-        alignItems: "center",
-        marginTop: 20,
-      }}
+    <ImageBackground
+      source={require("../assets/bg.png")}
+      resizeMode="stretch"
+      style={styles.backgroundImage}
     >
-      <Text>Welcome to Home Screen!</Text>
       <Pressable
-        style={styles.button}
-        onPress={() => navigation.navigate("Login")}
+        style={styles.fullScreenPressable}
+        onPress={() => {
+          Keyboard.dismiss();
+        }}
       >
-        <Text style={styles.buttonText}>Login</Text>
+        <ScrollView contentContainerStyle={styles.container}>
+          <LoginScreen navigation={navigation}></LoginScreen>
+        </ScrollView>
       </Pressable>
-    </View>
+      <StatusBar style="auto" />
+    </ImageBackground>
   );
 };
 
 // StyleSheet for styling the components
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
+  fullScreenPressable: {
+    flex: 1,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    width: "100%",
-  },
-  loginForm: {
-    width: 250,
-    marginVertical: 40,
-    padding: 30,
-    borderRadius: 15,
-    backgroundColor: "gray",
-    color: "white",
-  },
-  button: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 4,
-    elevation: 3,
-    backgroundColor: "navy",
-    marginVertical: 10,
-  },
-  buttonText: {
-    color: "#fff",
+    width: "100%",
+    height: "100%",
   },
 });
 

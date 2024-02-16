@@ -91,50 +91,62 @@ const SignUpScreen = ({ navigation }) => {
           </Pressable>
         </View>
       ) : (
-        <View style={styles.loginForm}>
-          <TextInput
-            value={username}
-            onChangeText={handleUsernameInput}
-            placeholder="Username"
-            style={styles.input}
-          />
-          <TextInput
-            value={mail}
-            onChangeText={handleMailInput}
-            placeholder="Email"
-            style={styles.input}
-          />
-          <TextInput
-            value={password}
-            onChangeText={handlePasswordInput}
-            placeholder="Password"
-            secureTextEntry
-            style={styles.input}
-          />
-          <Pressable
-            onPress={createUser}
-            style={({ pressed }) => [
-              {
-                backgroundColor: pressed ? "blue" : "navy",
-              },
-              styles.button,
-            ]}
-            disabled={!isFormValid}
+        <>
+          <Text
+            style={{
+              fontWeight: "bold",
+              fontSize: 40,
+              position: "absolute",
+              top: 40,
+            }}
           >
-            <Text style={styles.buttonText}>Sign up</Text>
-          </Pressable>
-          <Pressable
-            style={styles.link}
-            onPress={() => navigation.navigate("Login")}
-          >
-            <Text style={styles.linkText}>
-              Already have an account ? Log in here
-            </Text>
-          </Pressable>
-        </View>
+            Create an account
+          </Text>
+          <View style={styles.loginForm}>
+            <TextInput
+              value={username}
+              onChangeText={handleUsernameInput}
+              placeholder="Username"
+              style={styles.input}
+            />
+            <TextInput
+              value={mail}
+              onChangeText={handleMailInput}
+              placeholder="Email"
+              style={styles.input}
+            />
+            <TextInput
+              value={password}
+              onChangeText={handlePasswordInput}
+              placeholder="Password"
+              secureTextEntry
+              style={styles.input}
+            />
+            <Pressable
+              onPress={createUser}
+              style={({ pressed }) => [
+                {
+                  backgroundColor: pressed ? "blue" : "navy",
+                },
+                styles.button,
+              ]}
+              disabled={!isFormValid}
+            >
+              <Text style={styles.buttonText}>Sign up</Text>
+            </Pressable>
+            <Pressable
+              style={styles.link}
+              onPress={() => navigation.navigate("Login")}
+            >
+              <Text style={styles.linkText}>
+                Already have an account ? Log in here
+              </Text>
+            </Pressable>
+          </View>
+        </>
       )}
-      <Button title="debug" onPress={() => console.log("user => ", user)} />
-
+      {/*       <Button title="debug" onPress={() => console.log("user => ", user)} />
+       */}
       <Pressable
         onPress={() => navigation.navigate("Home")}
         style={styles.button}
@@ -150,10 +162,10 @@ const SignUpScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
     alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     width: "100%",
+    backgroundColor: "red",
   },
   loginForm: {
     width: 250,
