@@ -7,13 +7,16 @@ import {
   Alert,
   StatusBar,
   Pressable,
-  Button,
+  Animated,
+  ImageBackground,
+  Dimensions,
+  KeyboardAvoidingView,
+  SafeAreaView,
 } from "react-native";
 
 // Firebase imports
 import { auth } from "../firebase";
 import {
-  signInWithEmailAndPassword,
   onAuthStateChanged,
   signOut,
   createUserWithEmailAndPassword,
@@ -29,6 +32,12 @@ const SignUpScreen = ({ navigation }) => {
 
   // Form validation state
   const [isFormValid, setIsFormValid] = useState(false);
+
+  // Input focus state
+  const [isInputFocused, setIsInputFocused] = useState(false);
+
+  // Animated background color based on input focus
+  const inputFocusAnimatedValue = new Animated.Value(0);
 
   // Effect hook for form validation
   useEffect(() => {
@@ -73,88 +82,136 @@ const SignUpScreen = ({ navigation }) => {
     }
   };
 
+  // Animated background color based on input focus
+  const animatedBackgroundColor = inputFocusAnimatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ["rgba(255, 255, 255, 1)", "rgba(255, 255, 255, 0.8)"], // Background color values
+  });
+
+  // Focus and Blur handlers for inputs using Animated API
+  const handleFocus = () => {
+    setIsInputFocused(!isInputFocused);
+    Animated.timing(inputFocusAnimatedValue, {
+      toValue: 1,
+      duration: 600,
+      useNativeDriver: false, // backgroundColor does not support native animation
+    }).start();
+  };
+
+  const handleBlur = () => {
+    setIsInputFocused(!isInputFocused);
+
+    Animated.timing(inputFocusAnimatedValue, {
+      toValue: 0,
+      duration: 900,
+      useNativeDriver: false, // backgroundColor does not support native animation
+    }).start();
+  };
+
   return (
-    <View style={styles.container}>
-      {user ? (
-        <View>
-          <Text>Welcome {user.displayName || "User"}!</Text>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView style={styles.container}>
+        <View style={styles.container}>
+          <ImageBackground
+            source={require("../assets/7.png")}
+            resizeMode="cover"
+            style={styles.backgroundImage}
+          />
+          {user ? (
+            <View>
+              <Text>Welcome {user.displayName || "User"}!</Text>
+              <Pressable
+                onPress={() => signOut(auth).then(() => setUser(null))}
+                style={({ pressed }) => [
+                  {
+                    backgroundColor: pressed ? "blue" : "navy",
+                  },
+                  styles.button,
+                ]}
+              >
+                <Text style={styles.buttonText}>Log out</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <>
+              <Animated.View
+                style={[
+                  styles.loginForm,
+                  { backgroundColor: animatedBackgroundColor }, // Apply animated background color here
+                ]}
+              >
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 30,
+                    textAlign: "center",
+                    marginBottom: 15,
+                  }}
+                >
+                  Create an account
+                </Text>
+                <TextInput
+                  value={username}
+                  onChangeText={handleUsernameInput}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                  placeholder="Username"
+                  style={styles.input}
+                  autoCapitalize="none"
+                />
+                <TextInput
+                  value={mail}
+                  onChangeText={handleMailInput}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                  placeholder="Email"
+                  style={styles.input}
+                  autoCapitalize="none"
+                  autoComplete="email"
+                />
+                <TextInput
+                  value={password}
+                  onChangeText={handlePasswordInput}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                  placeholder="Password"
+                  secureTextEntry
+                  style={styles.input}
+                  autoCapitalize="none"
+                />
+                <Pressable
+                  onPress={createUser}
+                  style={({ pressed }) => [
+                    {
+                      backgroundColor: pressed ? "blue" : "navy",
+                    },
+                    styles.button,
+                  ]}
+                  disabled={!isFormValid}
+                >
+                  <Text style={styles.buttonText}>Sign up</Text>
+                </Pressable>
+                <Pressable
+                  style={styles.link}
+                  onPress={() => navigation.navigate("Home")}
+                >
+                  <Text style={styles.linkText}>
+                    Already have an account ? Log in here
+                  </Text>
+                </Pressable>
+              </Animated.View>
+            </>
+          )}
           <Pressable
-            onPress={() => signOut(auth).then(() => setUser(null))}
-            style={({ pressed }) => [
-              {
-                backgroundColor: pressed ? "blue" : "navy",
-              },
-              styles.button,
-            ]}
+            onPress={() => navigation.navigate("Home")}
+            style={styles.button}
           >
-            <Text style={styles.buttonText}>Log out</Text>
+            <Text style={styles.buttonText}>home</Text>
           </Pressable>
+          <StatusBar style="auto" />
         </View>
-      ) : (
-        <>
-          <Text
-            style={{
-              fontWeight: "bold",
-              fontSize: 40,
-              position: "absolute",
-              top: 40,
-            }}
-          >
-            Create an account
-          </Text>
-          <View style={styles.loginForm}>
-            <TextInput
-              value={username}
-              onChangeText={handleUsernameInput}
-              placeholder="Username"
-              style={styles.input}
-            />
-            <TextInput
-              value={mail}
-              onChangeText={handleMailInput}
-              placeholder="Email"
-              style={styles.input}
-            />
-            <TextInput
-              value={password}
-              onChangeText={handlePasswordInput}
-              placeholder="Password"
-              secureTextEntry
-              style={styles.input}
-            />
-            <Pressable
-              onPress={createUser}
-              style={({ pressed }) => [
-                {
-                  backgroundColor: pressed ? "blue" : "navy",
-                },
-                styles.button,
-              ]}
-              disabled={!isFormValid}
-            >
-              <Text style={styles.buttonText}>Sign up</Text>
-            </Pressable>
-            <Pressable
-              style={styles.link}
-              onPress={() => navigation.navigate("Login")}
-            >
-              <Text style={styles.linkText}>
-                Already have an account ? Log in here
-              </Text>
-            </Pressable>
-          </View>
-        </>
-      )}
-      {/*       <Button title="debug" onPress={() => console.log("user => ", user)} />
-       */}
-      <Pressable
-        onPress={() => navigation.navigate("Home")}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>home</Text>
-      </Pressable>
-      <StatusBar style="auto" />
-    </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
@@ -165,18 +222,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     width: "100%",
-    backgroundColor: "red",
   },
   loginForm: {
     width: 250,
     marginVertical: 40,
     padding: 30,
     borderRadius: 15,
-    backgroundColor: "gray",
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
     color: "white",
   },
   input: {
-    color: "white",
+    color: "black",
+    borderBottomWidth: 1,
+    borderBottomColor: "black",
+    padding: 2,
+    marginVertical: 1,
   },
   button: {
     alignItems: "center",
@@ -192,7 +252,21 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   linkText: {
-    color: "#46e4f2",
+    color: "#000",
+    textAlign: "center",
+  },
+  backgroundImage: {
+    flex: 1,
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height,
+    height: "100%",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    left: 0,
+    top: 0,
   },
 });
 

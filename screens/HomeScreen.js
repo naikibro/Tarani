@@ -16,8 +16,8 @@ const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require("../assets/bg2.png")}
-        resizeMode="stretch"
+        source={require("../assets/6.png")}
+        resizeMode="cover"
         style={styles.backgroundImage}
       />
       <ScrollView
