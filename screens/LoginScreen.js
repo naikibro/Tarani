@@ -6,9 +6,12 @@ import {
   View,
   Alert,
   StatusBar,
+  Image,
   Pressable,
   Animated,
   Button,
+  Platform,
+  Keyboard,
   SafeAreaView,
 } from "react-native";
 
@@ -75,11 +78,12 @@ const LoginScreen = ({ navigation }) => {
   // Animated background color based on input focus
   const animatedBackgroundColor = inputFocusAnimatedValue.interpolate({
     inputRange: [0, 1],
-    outputRange: ["rgba(255, 255, 255, 1)", "rgba(255, 255, 255, 0.8)"], // Background color values
+    outputRange: ["rgba(255, 255, 255, .9)", "rgba(255, 255, 255, 0.8)"], // Background color values
   });
 
   // Focus and Blur handlers for inputs using Animated API
   const handleFocus = () => {
+    setIsInputFocused(!isInputFocused);
     Animated.timing(inputFocusAnimatedValue, {
       toValue: 1,
       duration: 600,
@@ -88,12 +92,38 @@ const LoginScreen = ({ navigation }) => {
   };
 
   const handleBlur = () => {
+    setIsInputFocused(!isInputFocused);
+
     Animated.timing(inputFocusAnimatedValue, {
       toValue: 0,
       duration: 900,
       useNativeDriver: false, // backgroundColor does not support native animation
     }).start();
   };
+
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      Platform.OS === "android" ? "keyboardDidShow" : "keyboardWillShow",
+      () => {
+        setKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      Platform.OS === "android" ? "keyboardDidHide" : "keyboardWillHide",
+      () => {
+        setKeyboardVisible(false);
+      }
+    );
+
+    // Cleanup function
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
   return (
     <View style={styles.container}>
       {user ? (
@@ -113,21 +143,28 @@ const LoginScreen = ({ navigation }) => {
         </View>
       ) : (
         <>
-          <Text
-            style={{
-              fontWeight: "bold",
-              fontSize: 40,
-            }}
-          >
-            Tarani
-          </Text>
-
+          {!isKeyboardVisible && (
+            <Image
+              source={require("./../assets/logo.png")}
+              style={{ width: 200, height: 200 }}
+            />
+          )}
           <Animated.View
             style={[
               styles.loginForm,
               { backgroundColor: animatedBackgroundColor }, // Apply animated background color here
             ]}
           >
+            <Text
+              style={{
+                fontWeight: "bold",
+                fontSize: 30,
+                textAlign: "center",
+                marginBottom: 15,
+              }}
+            >
+              Log in
+            </Text>
             <TextInput
               value={mail}
               onChangeText={handleMailInput}
@@ -135,6 +172,7 @@ const LoginScreen = ({ navigation }) => {
               onEndEditing={handleBlur}
               placeholder="Email"
               style={styles.input}
+              autoCapitalize="none"
             />
             <TextInput
               value={password}
@@ -144,6 +182,7 @@ const LoginScreen = ({ navigation }) => {
               placeholder="Password"
               secureTextEntry
               style={styles.input}
+              autoCapitalize="none"
             />
             <Pressable
               onPress={loginUser}
@@ -168,7 +207,8 @@ const LoginScreen = ({ navigation }) => {
           </Animated.View>
         </>
       )}
-      <Button title="debug" onPress={() => console.log("user => ", user)} />
+      {/*       <Button title="debug" onPress={() => console.log("user => ", user)} />
+       */}
     </View>
   );
 };
@@ -221,6 +261,7 @@ const styles = StyleSheet.create({
   },
   linkText: {
     color: "#000",
+    textAlign: "center",
   },
 });
 
