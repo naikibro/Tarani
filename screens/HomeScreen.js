@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
-  Text,
   Button,
   Pressable,
   StyleSheet,
@@ -12,7 +11,22 @@ import {
   Dimensions,
 } from "react-native";
 import LoginScreen from "./LoginScreen";
+import ShoppingListScreen from "./ShoppingListScreen";
+import Hello from "../components/Home/Hello";
+
+import { auth } from "../firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+
 const HomeScreen = ({ navigation }) => {
+  // Authentication state listener
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return unsubscribe;
+  }, []);
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -20,20 +34,22 @@ const HomeScreen = ({ navigation }) => {
         resizeMode="cover"
         style={styles.backgroundImage}
       />
-      <ScrollView
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="always"
+
+      <Pressable
+        style={styles.fullScreenPressable}
+        onPress={() => {
+          Keyboard.dismiss();
+        }}
       >
-        <Pressable
-          style={styles.fullScreenPressable}
-          onPress={() => {
-            Keyboard.dismiss();
-          }}
-        >
-          <LoginScreen navigation={navigation}></LoginScreen>
-        </Pressable>
-        <StatusBar style="auto" />
-      </ScrollView>
+        {user ? (
+          <>
+            <Hello></Hello>
+          </>
+        ) : (
+          <LoginScreen navigation={navigation} />
+        )}
+      </Pressable>
+      <StatusBar style="auto" />
     </View>
   );
 };

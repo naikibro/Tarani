@@ -155,6 +155,16 @@ const LoginScreen = ({ navigation }) => {
               { backgroundColor: animatedBackgroundColor }, // Apply animated background color here
             ]}
           >
+            <Text
+              style={{
+                fontWeight: "bold",
+                fontSize: 30,
+                textAlign: "center",
+                marginBottom: 15,
+              }}
+            >
+              Log in
+            </Text>
             <TextInput
               value={mail}
               onChangeText={handleMailInput}
@@ -197,7 +207,8 @@ const LoginScreen = ({ navigation }) => {
           </Animated.View>
         </>
       )}
-      <Button title="debug" onPress={() => console.log("user => ", user)} />
+      {/*       <Button title="debug" onPress={() => console.log("user => ", user)} />
+       */}
     </View>
   );
 };

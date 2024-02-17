@@ -202,12 +202,7 @@ const SignUpScreen = ({ navigation }) => {
               </Animated.View>
             </>
           )}
-          <Pressable
-            onPress={() => navigation.navigate("Home")}
-            style={styles.button}
-          >
-            <Text style={styles.buttonText}>home</Text>
-          </Pressable>
+
           <StatusBar style="auto" />
         </View>
       </KeyboardAvoidingView>
