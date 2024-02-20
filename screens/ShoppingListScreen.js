@@ -6,6 +6,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { onSnapshot, collection, query } from "firebase/firestore";
 import AddItem from "../components/AddItem";
 import ShoppingListItem from "../components/ShoppingListItem";
+import { setDoc, doc } from "firebase/firestore";
 
 const ShoppingListScreen = () => {
   const [user, setUser] = useState(null);
@@ -13,43 +14,52 @@ const ShoppingListScreen = () => {
   const [visible, setVisible] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
 
+  // Fetch products only once when the component mounts
   useEffect(() => {
-    onAuthStateChanged(auth, (currentUser) => {
+    // Function to fetch products
+    const fetchProducts = async () => {
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const q = query(collection(db, "shoppingList"));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+          const productsData = snapshot.docs.map((doc) => {
+            const product = doc.data();
+            return {
+              id: doc.id,
+              ...product,
+            };
+          });
+          setProducts(productsData);
+          console.log(productsData);
+          const newTotalPrice = productsData.reduce((total, product) => {
+            const price = parseFloat(product.unitPrice);
+            const qty = parseFloat(product.qty);
+
+            if (!isNaN(price) && !isNaN(qty)) {
+              const temp = price * qty;
+              return total + temp;
+            }
+            return total;
+          }, 0);
+
+          setTotalPrice(newTotalPrice);
+        });
+
+        return () => unsubscribe();
+      }
+    };
+
+    // Call fetchProducts when the component mounts
+    fetchProducts();
+
+    // Subscribe to auth state changes
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
+
+    // Unsubscribe from auth state changes when the component unmounts
+    return () => unsubscribeAuth();
   }, []);
-
-  useEffect(() => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      const q = query(collection(db, "shoppingList"));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const productsData = snapshot.docs.map((doc) => {
-          const product = doc.data();
-          return {
-            id: doc.id,
-            ...product,
-          };
-        });
-        setProducts(productsData);
-
-        const newTotalPrice = productsData.reduce((total, product) => {
-          const price = parseFloat(product.unitPrice);
-          const qty = parseFloat(product.qty);
-
-          if (!isNaN(price) && !isNaN(qty)) {
-            const temp = price * qty;
-            return total + temp;
-          }
-          return total;
-        }, 0);
-
-        setTotalPrice(newTotalPrice);
-      });
-
-      return () => unsubscribe();
-    }
-  }, [user]);
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
@@ -84,6 +94,31 @@ const ShoppingListScreen = () => {
       <Button mode="outlined" style={styles.addButton} onPress={showModal}>
         Add a product
       </Button>
+
+      {/* <Button
+        mode="outlined"
+        style={styles.addButton}
+        onPress={() => {
+          console.log("\n------------------\n");
+        }}
+      >
+        flush
+      </Button>
+
+      <Button
+        mode="contained"
+        style={styles.addButton}
+        onPress={() => {
+          const product = setDoc(doc(db, "shoppingList", "Coca cola"), {
+            productName: "Coca cola",
+            unitPrice: 200,
+            qty: 23,
+            user: auth.currentUser.uid,
+          });
+        }}
+      >
+        Demo data
+      </Button> */}
     </View>
   );
 };

@@ -16,20 +16,25 @@ const AddItem = ({ method, auth }) => {
 
   const handleProductNameChange = (text) => {
     setProductName(text);
+    console.log("a1.pnc");
   };
 
   const handleQtyChange = (text) => {
     setQty(text);
+    console.log("a2.qtc");
   };
 
   const handlePriceChange = (text) => {
     setPrice(text);
+    console.log("a3.prc");
   };
 
   const handleSubmit = async () => {
     try {
+      console.log("a4.setDoc start");
+
       const uniqueIdentifier = productName + "-" + auth.currentUser.uid;
-      await setDoc(doc(db, "shoppingList", uniqueIdentifier), {
+      const product = await setDoc(doc(db, "shoppingList", productName), {
         productName: productName,
         unitPrice: price,
         qty: qty,
@@ -38,6 +43,7 @@ const AddItem = ({ method, auth }) => {
       setProductName("");
       setQty("");
       setPrice("");
+      console.log("a4.setDoc end", product);
       method();
     } catch (error) {
       console.error("Error adding document:", error);
