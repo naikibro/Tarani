@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import {
+  View,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
 import { Text, TextInput, Button } from "react-native-paper";
 import { setDoc, getDoc, collection, doc } from "firebase/firestore";
 import { db } from "../firebase";
@@ -27,6 +32,7 @@ const AddItem = ({ method, auth }) => {
   const handleSubmit = async () => {
     try {
       console.log("a4.setDoc start");
+      method();
       // Generate a new document ID for the new item
       const newItemRef = doc(collection(db, "shoppingList"));
       await setDoc(newItemRef, {
@@ -38,6 +44,7 @@ const AddItem = ({ method, auth }) => {
       setProductName("");
       setQty("");
       setPrice("");
+      Keyboard.dismiss();
       console.log("a4.setDoc end");
     } catch (error) {
       console.error("Error adding document:", error);

@@ -91,7 +91,7 @@ const ShoppingListItem = ({
 
   const handleRemoveItem = async () => {
     try {
-      await deleteDoc(doc(db, "shoppingList", initialProductName));
+      await deleteDoc(doc(db, "shoppingList", id));
     } catch (error) {
       console.error("Error deleting document:", error);
     }
@@ -104,15 +104,33 @@ const ShoppingListItem = ({
 
   return (
     <View style={styles.item}>
-      <View style={styles.rowContainer}>
-        <TouchableOpacity onPress={toggleModal}>
+      <View style={styles.rowContainer} onPress={toggleModal}>
+        <TouchableOpacity>
           <Text style={styles.label}>{productName}</Text>
         </TouchableOpacity>
-        <Text style={styles.label}> xpf {unitPrice}</Text>
-        <Text style={styles.label}>qty: {qty}</Text>
-        <Button mode="outlined" onPress={handleRemoveItem}>
-          <Ionicons name="trash" />
-        </Button>
+
+        <View style={{ display: "flex", flexDirection: "row" }}>
+          <View
+            style={{
+              marginHorizontal: 10,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "flex-start",
+            }}
+          >
+            <Text style={{ color: "#ccc", textAlign: "left" }}>
+              {unitPrice} xpf
+            </Text>
+            <Text style={{ color: "#ccc", textAlign: "left" }}>
+              {qty} units
+            </Text>
+          </View>
+
+          <Button mode="outlined" onPress={handleRemoveItem}>
+            <Ionicons name="trash" />
+          </Button>
+        </View>
       </View>
 
       <EditItemModal
@@ -146,6 +164,7 @@ const styles = StyleSheet.create({
   rowContainer: {
     display: "flex",
     justifyContent: "space-between",
+    alignItems: "center",
     flexDirection: "row",
     width: "100%",
     marginVertical: 4,
