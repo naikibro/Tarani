@@ -43,6 +43,7 @@ const HomeScreen = ({ navigation }) => {
       >
         {user ? (
           <>
+            {/* TODO: on first entry here, console log smthing */}
             <Hello></Hello>
           </>
         ) : (
