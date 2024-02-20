@@ -104,34 +104,36 @@ const ShoppingListItem = ({
 
   return (
     <View style={styles.item}>
-      <View style={styles.rowContainer} onPress={toggleModal}>
-        <TouchableOpacity>
+      <TouchableOpacity onPress={toggleModal}>
+        <View style={styles.rowContainer}>
           <Text style={styles.label}>{productName}</Text>
-        </TouchableOpacity>
 
-        <View style={{ display: "flex", flexDirection: "row" }}>
-          <View
-            style={{
-              marginHorizontal: 10,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "flex-start",
-            }}
-          >
-            <Text style={{ color: "#ccc", textAlign: "left" }}>
-              {unitPrice} xpf
-            </Text>
-            <Text style={{ color: "#ccc", textAlign: "left" }}>
-              {qty} units
-            </Text>
+          <View style={{ display: "flex", flexDirection: "row" }}>
+            <View
+              style={{
+                marginHorizontal: 10,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "flex-start",
+              }}
+            >
+              <Text style={{ color: "#ccc", textAlign: "left" }}>
+                {unitPrice} xpf
+              </Text>
+              <Text style={{ color: "#ccc", textAlign: "left" }}>
+                {qty} units
+              </Text>
+            </View>
+
+            <TouchableOpacity onPress={handleRemoveItem}>
+              <Button mode="outlined">
+                <Ionicons name="trash" />
+              </Button>
+            </TouchableOpacity>
           </View>
-
-          <Button mode="outlined" onPress={handleRemoveItem}>
-            <Ionicons name="trash" />
-          </Button>
         </View>
-      </View>
+      </TouchableOpacity>
 
       <EditItemModal
         visible={isModalVisible}
