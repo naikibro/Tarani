@@ -6,7 +6,6 @@ import { onAuthStateChanged } from "firebase/auth";
 import { onSnapshot, collection, query } from "firebase/firestore";
 import AddItem from "../components/AddItem";
 import ShoppingListItem from "../components/ShoppingListItem";
-import { setDoc, doc } from "firebase/firestore";
 
 const ShoppingListScreen = () => {
   const [user, setUser] = useState(null);
@@ -71,7 +70,8 @@ const ShoppingListScreen = () => {
         {products.map((product) => (
           <ShoppingListItem
             key={product.id}
-            productName={product.productName}
+            id={product.id}
+            initialProductName={product.productName}
             initialQty={product.qty}
             initialUnitPrice={product.unitPrice}
             auth={auth}
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    justifyContent: "flex-end",
+    justifyContent: "space-evenly",
     backgroundColor: "rgba(0, 0, 0, .5)",
   },
   addButton: {

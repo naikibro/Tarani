@@ -1,35 +1,85 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet } from "react-native";
+import {
+  TouchableOpacity,
+  Modal,
+  View,
+  StyleSheet,
+  Keyboard,
+} from "react-native";
 import { Text, TextInput, Button } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
-import { setDoc, getDoc, collection, doc, deleteDoc } from "firebase/firestore";
+import { setDoc, deleteDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
 
-const ShoppingListItem = ({
+const EditItemModal = ({
+  visible,
+  toggleModal,
+  id,
+  initialProductName,
   productName,
+  unitPrice,
+  qty,
+  setProductName,
+  handleUnitPriceChange,
+  handleQtyChange,
+  updateDocument,
+}) => {
+  useEffect(() => {
+    if (!visible) {
+      updateDocument();
+    }
+  }, [visible]);
+
+  return (
+    <Modal visible={visible} animationType="slide">
+      <View style={styles.modalContainer}>
+        <Text style={styles.modalTitle}>Edit Item</Text>
+        <TextInput
+          style={styles.textInput}
+          value={productName}
+          onChangeText={setProductName}
+        />
+        <TextInput
+          style={styles.textInput}
+          value={unitPrice}
+          onChangeText={handleUnitPriceChange}
+        />
+        <TextInput
+          style={styles.textInput}
+          value={qty}
+          onChangeText={handleQtyChange}
+        />
+        <Button onPress={toggleModal}>Close</Button>
+      </View>
+    </Modal>
+  );
+};
+
+const ShoppingListItem = ({
+  id,
+  initialProductName,
   initialQty,
   initialUnitPrice,
   auth,
 }) => {
+  const [productName, setProductName] = useState(initialProductName.toString());
   const [qty, setQty] = useState(initialQty.toString());
   const [unitPrice, setUnitPrice] = useState(initialUnitPrice.toString());
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
-  useEffect(() => {
-    const updateDocument = async () => {
-      try {
-        await setDoc(doc(db, "shoppingList", productName), {
-          productName: productName,
-          unitPrice: unitPrice,
-          qty: qty,
-          user: auth.currentUser.uid,
-        });
-      } catch (error) {
-        console.error("Error updating document:", error);
-      }
-    };
-
-    updateDocument();
-  }, [productName, unitPrice, qty]);
+  const updateDocument = async () => {
+    try {
+      const docRef = doc(db, "shoppingList", id); // Use the provided ID
+      await setDoc(docRef, {
+        productName: productName,
+        unitPrice: unitPrice,
+        qty: qty,
+        user: auth.currentUser.uid,
+      });
+    } catch (error) {
+      console.error("Error updating document:", error);
+    }
+  };
 
   const handleQtyChange = (text) => {
     setQty(text);
@@ -41,49 +91,43 @@ const ShoppingListItem = ({
 
   const handleRemoveItem = async () => {
     try {
-      await deleteDoc(doc(db, "shoppingList", productName));
-      deleteDoc(
-        doc(db, "shoppingList", productName + "-" + auth.currentUser.uid)
-      );
+      await deleteDoc(doc(db, "shoppingList", initialProductName));
     } catch (error) {
       console.error("Error deleting document:", error);
     }
   };
 
+  const toggleModal = () => {
+    Keyboard.dismiss(); // Dismiss keyboard when modal is closed
+    setIsModalVisible(!isModalVisible);
+  };
+
   return (
     <View style={styles.item}>
       <View style={styles.rowContainer}>
-        <Text style={styles.label}>{productName}</Text>
+        <TouchableOpacity onPress={toggleModal}>
+          <Text style={styles.label}>{productName}</Text>
+        </TouchableOpacity>
+        <Text style={styles.label}> xpf {unitPrice}</Text>
+        <Text style={styles.label}>qty: {qty}</Text>
         <Button mode="outlined" onPress={handleRemoveItem}>
           <Ionicons name="trash" />
         </Button>
       </View>
-      <View style={styles.textInputContainer}>
-        <TextInput
-          style={styles.textInput}
-          keyboardType="numeric"
-          placeholder="Price"
-          placeholderTextColor="#a9a9a9"
-          value={unitPrice}
-          onChangeText={handleUnitPriceChange}
-        />
-        <TextInput
-          style={styles.textInput}
-          keyboardType="numeric"
-          placeholder="Quantity"
-          placeholderTextColor="#a9a9a9"
-          value={qty}
-          onChangeText={handleQtyChange}
-        />
-      </View>
-      <View style={styles.actionButtonsContainer}>
-        <Button style={styles.actionButton}>
-          <Text style={styles.actionButtonText}>-</Text>
-        </Button>
-        <Button style={styles.actionButton}>
-          <Text style={styles.actionButtonText}>+</Text>
-        </Button>
-      </View>
+
+      <EditItemModal
+        visible={isModalVisible}
+        toggleModal={toggleModal}
+        id={id}
+        productName={productName}
+        initialProductName={initialProductName}
+        unitPrice={unitPrice}
+        qty={qty}
+        setProductName={setProductName}
+        handleUnitPriceChange={handleUnitPriceChange}
+        handleQtyChange={handleQtyChange}
+        updateDocument={updateDocument}
+      />
     </View>
   );
 };
@@ -112,39 +156,26 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontSize: 20,
   },
-  textInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginLeft: 5,
-  },
   textInput: {
     borderColor: "#001f3f",
     borderWidth: 1,
     paddingHorizontal: 8,
-    paddingVertical: 1,
-    height: 40,
-    color: "#fff",
-    width: "50%",
-  },
-  actionButtonsContainer: {
-    flexDirection: "row",
+    paddingVertical: 10,
+    marginBottom: 20,
     width: "100%",
-    justifyContent: "flex-end",
-    marginVertical: 10,
+    color: "#fff", // Consistency in styles
   },
-  actionButton: {
-    backgroundColor: "#4FC4D6",
-    flex: 0,
-    alignItems: "center",
+  modalContainer: {
+    flex: 1,
     justifyContent: "center",
-    marginHorizontal: 2,
-    borderRadius: 5,
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, .1)",
+    padding: 20,
   },
-  actionButtonText: {
-    color: "black",
-    fontWeight: "bold",
-    fontSize: 25,
+  modalTitle: {
+    fontSize: 24,
+    marginBottom: 20,
+    color: "#fff", // Consistency in styles
   },
 });
 

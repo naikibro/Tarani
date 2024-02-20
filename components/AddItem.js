@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  Button,
-  TouchableWithoutFeedback,
-} from "react-native";
-import { Text, TextInput } from "react-native-paper";
+import { View, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import { Text, TextInput, Button } from "react-native-paper";
 import { setDoc, getDoc, collection, doc } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -32,9 +27,9 @@ const AddItem = ({ method, auth }) => {
   const handleSubmit = async () => {
     try {
       console.log("a4.setDoc start");
-
-      const uniqueIdentifier = productName + "-" + auth.currentUser.uid;
-      const product = await setDoc(doc(db, "shoppingList", productName), {
+      // Generate a new document ID for the new item
+      const newItemRef = doc(collection(db, "shoppingList"));
+      await setDoc(newItemRef, {
         productName: productName,
         unitPrice: price,
         qty: qty,
@@ -43,19 +38,20 @@ const AddItem = ({ method, auth }) => {
       setProductName("");
       setQty("");
       setPrice("");
-      console.log("a4.setDoc end", product);
-      method();
+      console.log("a4.setDoc end");
     } catch (error) {
       console.error("Error adding document:", error);
     }
   };
 
   return (
-    <TouchableWithoutFeedback onPress={method}>
+    <TouchableWithoutFeedback style={{ width: "50%" }} onPress={method}>
       <View style={styles.addItemContainer}>
         <View style={styles.rowContainer}>
           <Text style={styles.title}>Add a product</Text>
-          <Button onPress={method} title="X" />
+          <Button onPress={method} mode="outlined">
+            X
+          </Button>
         </View>
         <TextInput
           style={styles.textInput}
@@ -77,7 +73,13 @@ const AddItem = ({ method, auth }) => {
           onChangeText={handleQtyChange}
           value={qty}
         />
-        <Button onPress={handleSubmit} title="Submit" />
+        <Button
+          style={{ marginTop: 20 }}
+          onPress={handleSubmit}
+          mode="contained"
+        >
+          Submit
+        </Button>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -85,11 +87,13 @@ const AddItem = ({ method, auth }) => {
 
 const styles = StyleSheet.create({
   addItemContainer: {
-    width: "100%",
+    width: "95%",
     backgroundColor: "navy",
+    alignSelf: "center",
     padding: 20,
     borderRadius: 20,
     marginBottom: 20,
+    position: "relative",
   },
   rowContainer: {
     display: "flex",
